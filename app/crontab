@@ -1,0 +1,3 @@
+# Run clock sync every 15 minutes
+*/15 * * * * root cd /app && /usr/local/bin/python /app/scripts/sync_clocks.py >> /var/log/clock-sync.log 2>&1
+# Empty line required

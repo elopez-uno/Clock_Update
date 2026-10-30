@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    container_name: zkteco-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - clock-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: zkteco-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    network_mode: host
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app
+      - ./scripts:/app/scripts
+    command: sh -c "cron && python app.py"
+
+volumes:
+  mysql_data:
+
+networks:
+  clock-network:
+    driver: bridge

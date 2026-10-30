@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios del Reloj - {{ clock.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>Usuarios registrados en el reloj</h2>
+        <p class="text-muted mb-0">Reloj: <strong>{{ clock.name }}</strong> | IP: <strong>{{ clock.ip_address }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('clock_attendance', clock_id=clock.id) }}" class="btn btn-warning">
+            <i class="bi bi-list-check"></i> Ver Movimientos
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <strong>Total de usuarios: {{ users|length }}</strong>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>UID</th>
+                        <th>ID Usuario</th>
+                        <th>Nombre</th>
+                        <th>Privilegio</th>
+                        <th>Grupo</th>
+                        <th>Tarjeta</th>
+                        <th>Clave</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.uid }}</td>
+                        <td><strong>{{ u.user_id }}</strong></td>
+                        <td>{{ u.name }}</td>
+                        <td>
+                            {% if u.privilege == 14 %}
+                                <span class="badge bg-danger">Super Admin</span>
+                            {% elif u.privilege == 3 %}
+                                <span class="badge bg-primary">Admin</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ u.group_id or '-' }}</td>
+                        <td>{{ u.card or '-' }}</td>
+                        <td>{{ '***' if u.password else '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-3">No hay usuarios para mostrar</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
